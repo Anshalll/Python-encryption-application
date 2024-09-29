@@ -1,2 +1,6 @@
-./functions/__pycache__
-./myenv
+# Ignore Python cache directories
+__pycache__/
+*.pyc
+
+# Ignore virtual environment
+myenv/
