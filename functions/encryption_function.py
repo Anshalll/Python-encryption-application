@@ -9,4 +9,4 @@ def FilebasicEncrypt(filename , fernet):
     with open(filename , 'wb') as file:
                 file.write(encrypted_data)
             
-    sys.stdout.write(f"Encrypted {filename}")
+    sys.stdout.write(f"Encrypted {filename} \n")

@@ -9,16 +9,57 @@ class Loadkey:
     
         try:
             with open("generated_key.txt" , "r") as file:
-                key = file.readlines().strip()
+                key = file.readlines()
+                
                 if not key:
                     sys.stderr.write("No key found,  please generate a key!")
                     sys.exit(1)
                 else:
                     return key[0]
-        except Exception:
+        except Exception :
+           
             sys.stderr.write("No key found,  please generate a key!")
             sys.exit(1)
           
+class BulkEncrypt(Loadkey):
+    def bulk_encrypt(self, filepath): 
+        try:
+            if os.path.isdir(filepath):
+               key = super().returnkey()
+               fernet = Fernet(key)
+               items = os.listdir(filepath)
+
+               for file in items: 
+                   full_path = os.path.join(filepath, file)
+                   if os.path.isfile(full_path):
+                       FilebasicEncrypt(full_path , fernet)
+                       
+            else:
+                sys.stdout.write("Provided path should be a folder")
+                sys.exit(1)
+
+        except Exception:
+            sys.exit(1)
+
+class Bulkdecrypt(Loadkey):
+    def bulk_decrypt(self, filepath): 
+        try:
+            if os.path.isdir(filepath):
+               key = super().returnkey()
+               fernet = Fernet(key)
+               items = os.listdir(filepath)
+
+               for file in items: 
+                   full_path = os.path.join(filepath, file)
+                   if os.path.isfile(full_path):
+                       Filebasicdecrypt(full_path , fernet)
+                       
+            else:
+                sys.stdout.write("Provided path should be a folder")
+                sys.exit(1)
+
+        except Exception:
+            sys.exit(1)
 
 class EncryptFile(Loadkey):
     
@@ -78,22 +119,22 @@ class GenerateKey:
 
 
 
-
-
-
-class User_commands(GenerateKey , EncryptFile , DecryptFile):
-    def __init__(self, scriptname, command , filename):
+class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulkdecrypt):
+    def __init__(self, scriptname, command , filepath  ):
         self.scriptname = scriptname
-        self.filename = filename
+        self.filepath = filepath
         self.command = command
 
         if self.command == "encrypt":
-            super().encrypt(filename)
+            super().encrypt(filepath)
         elif self.command == "decrypt":
-            super().decrypt(filename)
-
+            super().decrypt(filepath)
+        elif self.command == "bulkencrypt":
+            super().bulk_encrypt(filepath)
         elif self.command == "generatekey":
             super().generate_key()
+        elif self.command == "bulkdecrypt":
+            super().bulk_decrypt(filepath)
         else:
             sys.stderr.write(f"Unknown command {command}")
 
@@ -113,12 +154,25 @@ if __name__ == "__main__":
         sys.stderr.write(
             "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> decrypt <file to encrypt>"
         )
+    elif sys.argv[1] == "bulkencryt" and len(sys.argv) != 3:
+        sys.stderr.write(
+            "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> bulkencrypt <Folder_path>"
+        )
+    elif sys.argv[1] == "bulkdecrypt" and len(sys.argv) != 3:
+        sys.stderr.write(
+            "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> bulkdecrypt <Folder_path>"
+        )
     else:
         scriptname = sys.argv[0]
         command = sys.argv[1]
-        filename = None
+        filepath = None
         
         if command == "encrypt" or command == "decrypt":
-            filename = sys.argv[2]
+            filepath = sys.argv[2]
 
-        ucommnds = User_commands(scriptname, command , filename)
+            ucommnds = User_commands(scriptname, command , filepath)
+        if command == "bulkencrypt" or command == "bulkdecrypt":
+            filepath = sys.argv[2]
+            ucommnds = User_commands(scriptname, command , filepath)
+        else:
+             ucommnds = User_commands(scriptname, command , filepath=None)

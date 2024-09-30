@@ -9,4 +9,4 @@ def Filebasicdecrypt(filename , fernet):
     with open(filename , 'wb') as file:
                 file.write(decrypted_data)
             
-    sys.stdout.write(f"decrypted {filename}")
+    sys.stdout.write(f"decrypted {filename} \n")
