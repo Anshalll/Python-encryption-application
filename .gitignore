@@ -4,3 +4,4 @@ __pycache__/
 
 # Ignore virtual environment
 myenv/
+locals.env

@@ -4,13 +4,13 @@ import os
 from functions.encryption_function import FilebasicEncrypt
 from functions.decryptfile_function import Filebasicdecrypt
 from functions.command_available import List_commands
-
+from  functions.checkprogramfiles import Check_program_file
 
 class Loadkey:
     def returnkey(self):
     
         try:
-            with open("generated_key.txt" , "r") as file:
+            with open("locals.env" , "r") as file:
                 key = file.readlines()
                 
                 if not key:
@@ -29,12 +29,17 @@ class BulkEncrypt(Loadkey):
             if os.path.isdir(filepath):
                key = super().returnkey()
                fernet = Fernet(key)
-               items = os.listdir(filepath)
+               
+               if not os.path.isdir(filepath):
+                   sys.stdin.write('Provided path should be a directory')
+                   sys.exit(1)
 
-               for file in items: 
-                   full_path = os.path.join(filepath, file)
-                   if os.path.isfile(full_path):
-                       FilebasicEncrypt(full_path , fernet)
+               for root , dir , files in os.walk(filepath): 
+                   for file in files:
+                    path = os.path.join(root, file)
+               
+                    if os.path.isfile(path):
+                        FilebasicEncrypt(path , fernet)
                        
             else:
                 sys.stdout.write("Provided path should be a folder")
@@ -49,12 +54,18 @@ class Bulkdecrypt(Loadkey):
             if os.path.isdir(filepath):
                key = super().returnkey()
                fernet = Fernet(key)
-               items = os.listdir(filepath)
 
-               for file in items: 
-                   full_path = os.path.join(filepath, file)
-                   if os.path.isfile(full_path):
-                       Filebasicdecrypt(full_path , fernet)
+               if not os.path.isdir(filepath):
+                   sys.stdin.write('Provided path should be a directory')
+                   sys.exit(1)
+
+               for root , dir, files in os.walk(filepath): 
+                   for file in files:
+                    full_path = os.path.join(root , file)
+
+                    
+                    if os.path.isfile(full_path):
+                        Filebasicdecrypt(full_path , fernet)
                        
             else:
                 sys.stdout.write("Provided path should be a folder")
@@ -68,7 +79,7 @@ class EncryptFile(Loadkey):
     def encrypt(self , filename):
         key = super().returnkey()
         fernet = Fernet(key)
-
+       
         if os.path.exists(filename):
             validate_File = filename.split(".")
             if "txt" in validate_File:
@@ -97,17 +108,17 @@ class DecryptFile(Loadkey):
 
 
 class GenerateKey:
-    def generate_key(self):
+    def generate_key(self , filepath):
 
-        if not os.path.exists("generated_key.txt"):
+        if not os.path.exists(filepath):
 
             key = Fernet.generate_key()
 
-            with open("generated_key.txt", "wb") as file:
+            with open(filepath, "wb") as file:
                 file.write(key)
                 sys.stdout.write("key generated!")
         else:
-            with open("generated_key.txt", "r") as file:
+            with open(filepath, "r") as file:
                 lines = file.readlines()
 
                 if len(lines) > 0:
@@ -115,15 +126,15 @@ class GenerateKey:
                 else:
                     key = Fernet.generate_key()
 
-                    with open("generated_key.txt", "wb") as file:
+                    with open(filepath, "wb") as file:
                         file.write(key)
                         sys.stdout.write("key generated!")
 
 
 
 class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulkdecrypt):
-    def __init__(self, scriptname, command , filepath  ):
-        self.scriptname = scriptname
+    def __init__(self, command , filepath  ):
+ 
         self.filepath = filepath
         self.command = command
 
@@ -134,7 +145,7 @@ class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulk
         elif self.command == "bulkencrypt":
             super().bulk_encrypt(filepath)
         elif self.command == "generatekey":
-            super().generate_key()
+            super().generate_key(filepath)
         elif self.command == "bulkdecrypt":
             super().bulk_decrypt(filepath)
         else:
@@ -142,42 +153,40 @@ class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulk
 
 
 if __name__ == "__main__":
-    
     try: 
-
-        if  sys.argv[1] == "generatekey" and len(sys.argv) != 2:
-         
-          List_commands()
-        elif sys.argv[1] == "encrypt" and len(sys.argv)  != 3: 
-        
-           List_commands()
-        elif sys.argv[1] == "decrypt" and len(sys.argv) != 3 :
-        
-          List_commands()
-        elif sys.argv[1] == "bulkencryt" and len(sys.argv) != 3:
-        
-           List_commands()
-        elif sys.argv[1] == "bulkdecrypt" and len(sys.argv) != 3:
-           
-           List_commands()
-        elif sys.argv[1] != "generatekey" and sys.argv[1] != "encrypt" and  sys.argv[1] != "decrypt" and sys.argv[1] != "bulkencrypt" and sys.argv[1] != "bulldecrypt":
-            
-           
+        if len(sys.argv) < 2: 
             List_commands()
-        else:
-            scriptname = sys.argv[0]
-            command = sys.argv[1]
-            filepath = None
-            
-            if command == "encrypt" or command == "decrypt":
-                filepath = sys.argv[2]
+            sys.exit(1)
 
-                ucommnds = User_commands(scriptname, command , filepath)
-            if command == "bulkencrypt" or command == "bulkdecrypt":
-                filepath = sys.argv[2]
-                ucommnds = User_commands(scriptname, command , filepath)
-            else:
-                ucommnds = User_commands(scriptname, command , filepath=None)
+        command = sys.argv[1]
+        filepath = sys.argv[2] if len(sys.argv) > 2 else None
+
+     
+        valid_commands = ["generatekey", "encrypt", "decrypt", "bulkencrypt", "bulkdecrypt"]
+        
+        if command not in valid_commands:
+            print("unknown command")
+            List_commands()
+            sys.exit(1)
+
+
+      
+        if command in ["encrypt", "decrypt", "bulkencrypt", "bulkdecrypt"] and not filepath:
+            print(f"Command '{command}' requires a filepath.")
+            List_commands()
+            sys.exit(1)
+            
+        if command == "generatekey":
+       
+            ucommands = User_commands(command, filepath='locals.env')
+            sys.exit(0) 
+
+        if Check_program_file(filepath): 
+            print("Can't perform operations on program files")
+            sys.exit(1)
+
+ 
+        ucommands = User_commands( command, filepath)
 
     except Exception as e:
         print(e)
