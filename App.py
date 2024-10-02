@@ -3,6 +3,8 @@ from cryptography.fernet import Fernet
 import os
 from functions.encryption_function import FilebasicEncrypt
 from functions.decryptfile_function import Filebasicdecrypt
+from functions.command_available import List_commands
+
 
 class Loadkey:
     def returnkey(self):
@@ -141,38 +143,43 @@ class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulk
 
 if __name__ == "__main__":
     
-    if  sys.argv[1] == "generatekey" and len(sys.argv) != 2:
-        sys.stderr.write(
-            "Unknown command \n commands available - \n \t generatekey \t eg= python <script name> generatekey"
-        )
-    
-    elif sys.argv[1] == "encrypt" and len(sys.argv)  != 3: 
-        sys.stderr.write(
-            "Unknown command \n commands available - \n \t encrypt \t eg= python <script name> encrypt <file to encrypt>"
-        )
-    elif sys.argv[1] == "decrypt" and len(sys.argv) != 3 : 
-        sys.stderr.write(
-            "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> decrypt <file to encrypt>"
-        )
-    elif sys.argv[1] == "bulkencryt" and len(sys.argv) != 3:
-        sys.stderr.write(
-            "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> bulkencrypt <Folder_path>"
-        )
-    elif sys.argv[1] == "bulkdecrypt" and len(sys.argv) != 3:
-        sys.stderr.write(
-            "Unknown command \n commands available - \n \t decrypt \t eg= python <script name> bulkdecrypt <Folder_path>"
-        )
-    else:
-        scriptname = sys.argv[0]
-        command = sys.argv[1]
-        filepath = None
-        
-        if command == "encrypt" or command == "decrypt":
-            filepath = sys.argv[2]
+    try: 
 
-            ucommnds = User_commands(scriptname, command , filepath)
-        if command == "bulkencrypt" or command == "bulkdecrypt":
-            filepath = sys.argv[2]
-            ucommnds = User_commands(scriptname, command , filepath)
+        if  sys.argv[1] == "generatekey" and len(sys.argv) != 2:
+         
+          List_commands()
+        elif sys.argv[1] == "encrypt" and len(sys.argv)  != 3: 
+        
+           List_commands()
+        elif sys.argv[1] == "decrypt" and len(sys.argv) != 3 :
+        
+          List_commands()
+        elif sys.argv[1] == "bulkencryt" and len(sys.argv) != 3:
+        
+           List_commands()
+        elif sys.argv[1] == "bulkdecrypt" and len(sys.argv) != 3:
+           
+           List_commands()
+        elif sys.argv[1] != "generatekey" and sys.argv[1] != "encrypt" and  sys.argv[1] != "decrypt" and sys.argv[1] != "bulkencrypt" and sys.argv[1] != "bulldecrypt":
+            
+           
+            List_commands()
         else:
-             ucommnds = User_commands(scriptname, command , filepath=None)
+            scriptname = sys.argv[0]
+            command = sys.argv[1]
+            filepath = None
+            
+            if command == "encrypt" or command == "decrypt":
+                filepath = sys.argv[2]
+
+                ucommnds = User_commands(scriptname, command , filepath)
+            if command == "bulkencrypt" or command == "bulkdecrypt":
+                filepath = sys.argv[2]
+                ucommnds = User_commands(scriptname, command , filepath)
+            else:
+                ucommnds = User_commands(scriptname, command , filepath=None)
+
+    except Exception as e:
+        print(e)
+        List_commands()
+

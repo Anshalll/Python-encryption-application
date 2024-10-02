@@ -1,0 +1,11 @@
+Commands available
+
+command name     usage
+
+Generate key     python <script_name> generatekey
+
+Encrypt file     python <script_name> encrypt <path_of_the_script>
+Encrypt folder   python <script_name> bulkencrypt <path_of_folder>
+
+Decrypt file     python <script_name> decrypt <path_to_decrypt>
+Decrypt folder   python <script_name> bulkdecrypt <path_of_folder>
