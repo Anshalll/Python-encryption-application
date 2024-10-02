@@ -106,7 +106,6 @@ class DecryptFile(Loadkey):
         else:
             sys.stderr.write("No such file found")
 
-
 class GenerateKey:
     def generate_key(self , filepath):
 
@@ -130,8 +129,6 @@ class GenerateKey:
                         file.write(key)
                         sys.stdout.write("key generated!")
 
-
-
 class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulkdecrypt):
     def __init__(self, command , filepath  ):
  
@@ -150,7 +147,6 @@ class User_commands(GenerateKey , EncryptFile , DecryptFile , BulkEncrypt , Bulk
             super().bulk_decrypt(filepath)
         else:
             sys.stderr.write(f"Unknown command {command}")
-
 
 if __name__ == "__main__":
     try: 
@@ -191,4 +187,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         List_commands()
-
